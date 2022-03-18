@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:projects_and_requirements/database/database.dart';
+import 'package:projects_and_requirements/models/project.dart';
+import 'package:projects_and_requirements/pages/projects_list_page.dart';
 import 'package:projects_and_requirements/util/requereasy_tech_form_field.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:validatorless/validatorless.dart';
 
 class ProjectPage extends StatefulWidget {
@@ -16,6 +20,27 @@ class _ProjectPageState extends State<ProjectPage> {
   TextEditingController prjStartDateController = TextEditingController();
   TextEditingController prjEstimatedEndDateController = TextEditingController();
   TextEditingController prjOwnerController = TextEditingController();
+
+  static DatabaseHelper? db;
+
+  int size = 0;
+  List<Project> projects = [];
+
+  @override
+  void initState() {
+    db = DatabaseHelper();
+
+    db!.initDB();
+
+    Future<List<Project>> projectsList = db!.getProjects();
+
+    projectsList.then((newProjectsList) {
+      setState(() {
+        projects = newProjectsList;
+        size = newProjectsList.length;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,36 +89,47 @@ class _ProjectPageState extends State<ProjectPage> {
                 RequereasyTechFormField(
                   label: 'Nome do Projeto',
                   controller: prjNameController,
+                  validator: Validatorless.required('Nome obrigatório!'),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Data de ínicio",
                   controller: prjStartDateController,
-                  validator: Validatorless.multiple([
-                    Validatorless.max(6, "Informe a data no formato yyMMdd!"),
-                    Validatorless.date("Formato de data inválido!"),
-                  ]),
+                  validator:
+                      Validatorless.required("Data de início obrigatória!"),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Data fim estimada",
                   controller: prjEstimatedEndDateController,
-                  validator: Validatorless.multiple([
-                    Validatorless.max(6, "Informe a data no formato yyMMdd!"),
-                    Validatorless.date("Formato de data inválido!"),
-                  ]),
+                  validator:
+                      Validatorless.required("Data fim estimada obrigatória!"),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Responsável",
                   controller: prjOwnerController,
+                  validator: Validatorless.required("Responsável obrigatório!"),
                 ),
                 const SizedBox(height: 40),
                 Padding(
                   padding: const EdgeInsets.only(left: 80),
                   child: ElevatedButton(
                     onPressed: () {
-                      createSuccessAlertDialog(context);
+                      if (_formKey.currentState?.validate() ?? false) {
+                        final String name = prjNameController.text;
+                        final String startDate = prjStartDateController.text;
+                        final String estimatedEndDate =
+                            prjEstimatedEndDateController.text;
+                        final String owner = prjOwnerController.text;
+
+                        var _newDBProject =
+                            Project(name, startDate, estimatedEndDate, owner);
+
+                        db!.insertProject(_newDBProject);
+
+                        _createSuccessAlertDialog(context);
+                      }
                     },
                     child: const Text('Cadastrar'),
                     style: ElevatedButton.styleFrom(
@@ -110,7 +146,7 @@ class _ProjectPageState extends State<ProjectPage> {
     );
   }
 
-  createSuccessAlertDialog(BuildContext context) {
+  _createSuccessAlertDialog(BuildContext context) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -120,9 +156,10 @@ class _ProjectPageState extends State<ProjectPage> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(context, ProjectsListPage.route());
               },
               child: const Text("Ok"),
+
             ),
           ],
         );

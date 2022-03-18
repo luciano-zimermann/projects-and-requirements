@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:projects_and_requirements/database/database.dart';
+import 'package:projects_and_requirements/models/project.dart';
+import 'package:projects_and_requirements/models/requirements.dart';
+import 'package:projects_and_requirements/pages/project_details_page.dart';
 import 'package:projects_and_requirements/util/requereasy_tech_form_field.dart';
 import 'package:validatorless/validatorless.dart';
 
 class RequirementsPage extends StatefulWidget {
-  const RequirementsPage({Key? key}) : super(key: key);
+  const RequirementsPage({
+    Key? key,
+    required this.projectId,
+    required this.project,
+    required this.index,
+  }) : super(key: key);
+
+  final int? projectId;
+
+  final Project? project;
+  final int? index;
 
   @override
   State<RequirementsPage> createState() => _RequirementsPageState();
@@ -12,10 +26,33 @@ class RequirementsPage extends StatefulWidget {
 class _RequirementsPageState extends State<RequirementsPage> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController prjNameController = TextEditingController();
-  TextEditingController prjStartDateController = TextEditingController();
-  TextEditingController prjEstimatedEndDateController = TextEditingController();
-  TextEditingController prjOwnerController = TextEditingController();
+  TextEditingController reqDescriptionController = TextEditingController();
+  TextEditingController reqRegisterDateController = TextEditingController();
+  TextEditingController reqImportanceController = TextEditingController();
+  TextEditingController reqComplexityController = TextEditingController();
+  TextEditingController reqEstimatedTimeController = TextEditingController();
+
+  static DatabaseHelper? db;
+
+  int size = 0;
+  List<Requirement> requirements = [];
+
+  @override
+  void initState() {
+    db = DatabaseHelper();
+
+    db!.initDB();
+
+    Future<List<Requirement>> requirementsList =
+        db!.getRequirements(widget.projectId!);
+
+    requirementsList.then((newRequirementsList) {
+      setState(() {
+        requirements = newRequirementsList;
+        size = newRequirementsList.length;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,38 +100,65 @@ class _RequirementsPageState extends State<RequirementsPage> {
                 const SizedBox(height: 50),
                 RequereasyTechFormField(
                   label: 'Descrição do Requisito',
-                  controller: prjNameController,
+                  controller: reqDescriptionController,
+                  validator: Validatorless.required("Descrição obrigatória!"),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Data de registro",
-                  controller: prjStartDateController,
-                  validator: Validatorless.multiple([
-                    Validatorless.max(6, "Informe a data no formato yyMMdd!"),
-                    Validatorless.date("Formato de data inválido!"),
-                  ]),
+                  controller: reqRegisterDateController,
+                  validator:
+                      Validatorless.required("Data de Registro obrigatória!"),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Importância",
-                  controller: prjOwnerController,
+                  controller: reqImportanceController,
+                  validator: Validatorless.required("Importância obrigatória!"),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Complexidade",
-                  controller: prjOwnerController,
+                  controller: reqComplexityController,
+                  validator:
+                      Validatorless.required("Complexidade obrigatória!"),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
                   label: "Tempo Estimado",
-                  controller: prjOwnerController,
+                  controller: reqEstimatedTimeController,
+                  validator:
+                      Validatorless.required("Tempo estimado obrigatório!"),
                 ),
                 const SizedBox(height: 40),
                 Padding(
                   padding: const EdgeInsets.only(left: 80),
                   child: ElevatedButton(
                     onPressed: () {
-                      createSuccessAlertDialog(context);
+                      if (_formKey.currentState?.validate() ?? false) {
+                        final String description =
+                            reqDescriptionController.text;
+                        final String registerDate =
+                            reqRegisterDateController.text;
+                        final String importance = reqImportanceController.text;
+                        final String complexity = reqComplexityController.text;
+                        final String estimatedTime =
+                            reqEstimatedTimeController.text;
+                        final int refProject = widget.projectId!;
+
+                        var newDBRequirement = Requirement(
+                          description,
+                          registerDate,
+                          importance,
+                          complexity,
+                          estimatedTime,
+                          refProject,
+                        );
+
+                        db!.insertRequirement(newDBRequirement);
+
+                        _createSuccessAlertDialog(context);
+                      }
                     },
                     child: const Text('Cadastrar'),
                     style: ElevatedButton.styleFrom(
@@ -111,7 +175,7 @@ class _RequirementsPageState extends State<RequirementsPage> {
     );
   }
 
-  createSuccessAlertDialog(BuildContext context) {
+  _createSuccessAlertDialog(BuildContext context) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -120,7 +184,17 @@ class _RequirementsPageState extends State<RequirementsPage> {
           content: const Text("Requisito cadastrado com sucesso!"),
           actions: [
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProjectDetailsPage(
+                      project: widget.project,
+                      index: widget.index,
+                    ),
+                  ),
+                );
+              },
               child: const Text("Ok"),
             ),
           ],
