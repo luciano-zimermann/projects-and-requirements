@@ -1,4 +1,9 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:projects_and_requirements/database/database.dart';
 import 'package:projects_and_requirements/models/project.dart';
 import 'package:projects_and_requirements/models/requirements.dart';
@@ -52,6 +57,59 @@ class _RequirementsPageState extends State<RequirementsPage> {
         size = newRequirementsList.length;
       });
     });
+  }
+
+  Position? _currentPosition;
+  String? _currentAddress;
+  bool isLoadingLocation = false;
+
+  FilePickerResult? result1;
+  PlatformFile? image1;
+
+  FilePickerResult? result2;
+  PlatformFile? image2;
+
+  void loadLocation() async {
+    setState(() {
+      isLoadingLocation = true;
+    });
+
+    await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best,
+      forceAndroidLocationManager: true,
+    ).then((Position position) {
+      setState(() {
+        _currentPosition = position;
+        _getAddressFromLatLng();
+        isLoadingLocation = false;
+      });
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
+  void pickFile() async {
+    result1 = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result1 == null) return;
+
+    image1 = result1!.files.first;
+
+    setState(() {});
+  }
+
+  void pickFile2() async {
+    result2 = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result2 == null) return;
+
+    image2 = result2!.files.first;
+
+    setState(() {});
   }
 
   @override
@@ -130,6 +188,77 @@ class _RequirementsPageState extends State<RequirementsPage> {
                   validator:
                       Validatorless.required("Tempo estimado obrigatório!"),
                 ),
+                const SizedBox(height: 25),
+                Center(
+                  child: isLoadingLocation
+                      ? const CircularProgressIndicator()
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 15.0),
+                          child: Text(
+                            _currentAddress ?? '',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(left: 120.0),
+                  child: ElevatedButton(
+                    onPressed: () => loadLocation(),
+                    child: const Text("Obter Localização"),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(left: 90.0),
+                  child: Row(
+                    children: [
+                      // ),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: ElevatedButton(
+                            onPressed: () => pickFile(),
+                            child: const Text('Foto 1'),
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: ElevatedButton(
+                            onPressed: () => pickFile2(),
+                            child: const Text('Foto 2'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Column(
+                  children: [
+                    (image1 == null)
+                        ? Container()
+                        : Center(
+                            child: Image.file(
+                              File(image1!.path.toString()),
+                              width: 300,
+                              height: 300,
+                            ),
+                          ),
+                    const SizedBox(height: 20),
+                    (image2 == null)
+                        ? Container()
+                        : Center(
+                            child: Image.file(
+                              File(image2!.path.toString()),
+                              width: 300,
+                              height: 300,
+                            ),
+                          ),
+                  ],
+                ),
                 const SizedBox(height: 40),
                 Padding(
                   padding: const EdgeInsets.only(left: 80),
@@ -145,6 +274,8 @@ class _RequirementsPageState extends State<RequirementsPage> {
                         final String estimatedTime =
                             reqEstimatedTimeController.text;
                         final int refProject = widget.projectId!;
+                        final String location =
+                            _currentAddress ?? 'Não Informado';
 
                         var newDBRequirement = Requirement(
                           description,
@@ -153,6 +284,9 @@ class _RequirementsPageState extends State<RequirementsPage> {
                           complexity,
                           estimatedTime,
                           refProject,
+                          location,
+                          image1!.path.toString(),
+                          image2!.path.toString(),
                         );
 
                         db!.insertRequirement(newDBRequirement);
@@ -173,6 +307,24 @@ class _RequirementsPageState extends State<RequirementsPage> {
         ),
       ),
     );
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+
+      Placemark place = placemarks[0];
+
+      setState(() {
+        _currentAddress =
+            "${place.street}, ${place.postalCode}, ${place.country}";
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   _createSuccessAlertDialog(BuildContext context) {

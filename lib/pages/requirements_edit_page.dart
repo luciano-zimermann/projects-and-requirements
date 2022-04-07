@@ -149,6 +149,9 @@ class _RequirementsEditPageState extends State<RequirementsEditPage> {
                           complexity,
                           estimatedTime,
                           widget.requirement?.refProject,
+                          widget.requirement?.location,
+                          widget.requirement?.image1,
+                          widget.requirement?.image2
                         );
                         db!.updateRequirement(
                             newDBRequirement, widget.requirement?.id);

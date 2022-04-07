@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:projects_and_requirements/models/project.dart';
 import 'package:projects_and_requirements/models/requirements.dart';
+import 'package:projects_and_requirements/models/image.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -30,6 +31,9 @@ class DatabaseHelper {
   static String reqComplexityColumn = 'complexity';
   static String reqEstimatedTimeColumn = 'estimatedTime';
   static String reqRefProjectColumn = 'refProject';
+  static String reqLocationColumn = 'location';
+  static String reqImage1Column = 'image1';
+  static String reqImage2Column = 'image2';
 
   DatabaseHelper._createInstance();
 
@@ -68,7 +72,10 @@ class DatabaseHelper {
         '$reqImportanceColumn TEXT,'
         '$reqComplexityColumn TEXT,'
         '$reqEstimatedTimeColumn TEXT,'
-        '$reqRefProjectColumn INTEGER);');
+        '$reqRefProjectColumn INTEGER,'
+        '$reqLocationColumn TEXT,'
+        '$reqImage1Column TEXT,'
+        '$reqImage2Column TEXT);');
   }
 
   Future<List<Map<String, dynamic>>> getProjectsMapList() async {
@@ -88,7 +95,7 @@ class DatabaseHelper {
     var result = await db.rawUpdate(
       "UPDATE $projectsTable SET $prjNameColumn = '${p.name}', "
       "$prjStartDateColumn = '${p.startDate}', $prjEstimatedEndDateColumn = "
-      "'${p.estimatedEndDate}' WHERE $prjIdColumn = '$id'",
+      "'${p.estimatedEndDate}', $prjOwnerColumn = '${p.owner}' WHERE $prjIdColumn = '$id'",
     );
     return result;
   }
@@ -130,7 +137,8 @@ class DatabaseHelper {
       "UPDATE $requirementsTable SET $reqDescriptionColumn = '${r.description}', "
       "$reqRegisterDateColumn = '${r.registerDate}', $reqImportanceColumn = "
       "'${r.importance}', $reqComplexityColumn = '${r.complexity}', $reqEstimatedTimeColumn = "
-      "'${r.estimatedTime}' WHERE $reqIdColumn = '$id'",
+      "'${r.estimatedTime}', $reqLocationColumn = '${r.location}', $reqImage1Column = "
+      "'${r.image1}', $reqImage2Column = '${r.image2}' WHERE $reqIdColumn = '$id'",
     );
     return result;
   }

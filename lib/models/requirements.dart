@@ -6,6 +6,9 @@ class Requirement {
   String? complexity;
   String? estimatedTime;
   int? refProject;
+  String? location;
+  String? image1;
+  String? image2;
 
   Requirement(
     this.description,
@@ -14,6 +17,9 @@ class Requirement {
     this.complexity,
     this.estimatedTime,
     this.refProject,
+    this.location,
+    this.image1,
+    this.image2,
   );
 
   Map<String, dynamic> toMap() {
@@ -27,6 +33,9 @@ class Requirement {
     map['complexity'] = complexity;
     map['estimatedTime'] = estimatedTime;
     map['refProject'] = refProject;
+    map['location'] = location;
+    map['image1'] = image1;
+    map['image2'] = image2;
     return map;
   }
 
@@ -38,5 +47,8 @@ class Requirement {
     complexity = map['complexity'];
     estimatedTime = map['estimatedTime'];
     refProject = map['refProject'];
+    location = map['location'];
+    image1 = map['image1'];
+    image2 = map['image2'];
   }
 }

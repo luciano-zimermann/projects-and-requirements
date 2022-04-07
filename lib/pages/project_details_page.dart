@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:projects_and_requirements/database/database.dart';
 import 'package:projects_and_requirements/models/project.dart';
@@ -197,7 +199,7 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                   AsyncSnapshot<List<Requirement>> snapshot) {
                 if (snapshot.hasData) {
                   return SizedBox(
-                    height: 200,
+                    height: 400,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ListView.builder(
@@ -206,8 +208,12 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           Requirement req = snapshot.data![index];
+
+                          File image1 = File(req.image1.toString());
+                          File image2 = File(req.image2.toString());
+
                           return SizedBox(
-                            height: 400,
+                            height: 1200,
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Card(
@@ -334,6 +340,45 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                                             ],
                                           ),
                                           const SizedBox(height: 5),
+                                          Row(
+                                            children: [
+                                              const Text(
+                                                'Local Cadastrado: ',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Text(
+                                                  '${req.location}',
+                                                  style: const TextStyle(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    fontSize: 20,
+                                                  ),
+                                                  maxLines: 5,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Center(
+                                            child: Image.file(
+                                              image1,
+                                              width: 300,
+                                              height: 300,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Center(
+                                            child: Image.file(
+                                              image2,
+                                              width: 300,
+                                              height: 300,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.push(
