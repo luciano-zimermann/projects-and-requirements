@@ -1,44 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:projects_and_requirements/database/database.dart';
-import 'package:projects_and_requirements/models/project.dart';
-import 'package:projects_and_requirements/pages/projects_list_page.dart';
+import 'package:projects_and_requirements/models/user.dart';
+import 'package:projects_and_requirements/pages/login_page.dart';
 import 'package:projects_and_requirements/util/requereasy_tech_form_field.dart';
 import 'package:validatorless/validatorless.dart';
 
-class ProjectPage extends StatefulWidget {
-  const ProjectPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
-  State<ProjectPage> createState() => _ProjectPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _ProjectPageState extends State<ProjectPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController prjNameController = TextEditingController();
-  TextEditingController prjStartDateController = TextEditingController();
-  TextEditingController prjEstimatedEndDateController = TextEditingController();
-  TextEditingController prjOwnerController = TextEditingController();
+  final TextEditingController _loginController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   static DatabaseHelper? db;
-
-  int size = 0;
-  List<Project> projects = [];
 
   @override
   void initState() {
     db = DatabaseHelper();
 
     db!.initDB();
-
-    Future<List<Project>> projectsList = db!.getProjects();
-
-    projectsList.then((newProjectsList) {
-      setState(() {
-        projects = newProjectsList;
-        size = newProjectsList.length;
-      });
-    });
   }
 
   @override
@@ -46,7 +32,7 @@ class _ProjectPageState extends State<ProjectPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Cadastro de Projeto',
+          'Cadastro de Usuário',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
@@ -64,7 +50,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 const Padding(
                   padding: EdgeInsets.only(left: 75),
                   child: Text(
-                    'Criar novo Projeto',
+                    'Bem-vindo ao Requereasy Tech',
                     style: TextStyle(
                       color: Colors.black87,
                       fontWeight: FontWeight.bold,
@@ -76,7 +62,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 const Padding(
                   padding: EdgeInsets.only(left: 30),
                   child: Text(
-                    'Preencha os campos abaixo para criar um projeto!',
+                    'Informe um login e uma senha para continuar',
                     style: TextStyle(
                       color: Colors.red,
                       fontWeight: FontWeight.bold,
@@ -86,29 +72,19 @@ class _ProjectPageState extends State<ProjectPage> {
                 ),
                 const SizedBox(height: 50),
                 RequereasyTechFormField(
-                  label: 'Nome do Projeto',
-                  controller: prjNameController,
-                  validator: Validatorless.required('Nome obrigatório!'),
+                  label: 'Login',
+                  controller: _loginController,
+                  validator: Validatorless.required('Login obrigatório!'),
                 ),
                 const SizedBox(height: 25),
                 RequereasyTechFormField(
-                  label: "Data de ínicio",
-                  controller: prjStartDateController,
-                  validator:
-                      Validatorless.required("Data de início obrigatória!"),
-                ),
-                const SizedBox(height: 25),
-                RequereasyTechFormField(
-                  label: "Data fim estimada",
-                  controller: prjEstimatedEndDateController,
-                  validator:
-                      Validatorless.required("Data fim estimada obrigatória!"),
-                ),
-                const SizedBox(height: 25),
-                RequereasyTechFormField(
-                  label: "Responsável",
-                  controller: prjOwnerController,
-                  validator: Validatorless.required("Responsável obrigatório!"),
+                  label: "Senha",
+                  controller: _passwordController,
+                  validator: Validatorless.multiple([
+                    Validatorless.required("Senha obrigatória!"),
+                    Validatorless.min(6, "Mínimo de 6 caracteres!")
+                  ]),
+                  obscureText: true,
                 ),
                 const SizedBox(height: 40),
                 Padding(
@@ -116,16 +92,12 @@ class _ProjectPageState extends State<ProjectPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
-                        final String name = prjNameController.text;
-                        final String startDate = prjStartDateController.text;
-                        final String estimatedEndDate =
-                            prjEstimatedEndDateController.text;
-                        final String owner = prjOwnerController.text;
+                        final String login = _loginController.text;
+                        final String password = _passwordController.text;
 
-                        var _newDBProject =
-                            Project(name, startDate, estimatedEndDate, owner);
+                        var _newDbUser = User(login: login, password: password);
 
-                        db!.insertProject(_newDBProject);
+                        db!.insertUser(_newDbUser);
 
                         _createSuccessAlertDialog(context);
                       }
@@ -151,14 +123,16 @@ class _ProjectPageState extends State<ProjectPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Sucesso!"),
-          content: const Text("Projeto cadastrado com sucesso!"),
+          content: const Text("Usuário Registrado com sucesso!"),
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, ProjectsListPage.route());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
               },
               child: const Text("Ok"),
-
             ),
           ],
         );

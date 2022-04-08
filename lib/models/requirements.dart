@@ -6,6 +6,7 @@ class Requirement {
   String? complexity;
   String? estimatedTime;
   int? refProject;
+  String? complementInfoLink;
   String? location;
   String? image1;
   String? image2;
@@ -17,6 +18,7 @@ class Requirement {
     this.complexity,
     this.estimatedTime,
     this.refProject,
+    this.complementInfoLink,
     this.location,
     this.image1,
     this.image2,
@@ -33,6 +35,7 @@ class Requirement {
     map['complexity'] = complexity;
     map['estimatedTime'] = estimatedTime;
     map['refProject'] = refProject;
+    map['complementInfoLink'] = complementInfoLink;
     map['location'] = location;
     map['image1'] = image1;
     map['image2'] = image2;
@@ -47,6 +50,7 @@ class Requirement {
     complexity = map['complexity'];
     estimatedTime = map['estimatedTime'];
     refProject = map['refProject'];
+    complementInfoLink = map['complementInfoLink'];
     location = map['location'];
     image1 = map['image1'];
     image2 = map['image2'];

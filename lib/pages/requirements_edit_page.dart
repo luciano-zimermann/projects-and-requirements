@@ -39,6 +39,7 @@ class _RequirementsEditPageState extends State<RequirementsEditPage> {
   TextEditingController reqImportanceController = TextEditingController();
   TextEditingController reqComplexityController = TextEditingController();
   TextEditingController reqEstimatedTimeController = TextEditingController();
+  TextEditingController reqComplementInfoLinkController = TextEditingController();
 
   static DatabaseHelper? db;
 
@@ -56,6 +57,7 @@ class _RequirementsEditPageState extends State<RequirementsEditPage> {
     reqImportanceController.text = widget.requirement?.importance ?? '';
     reqComplexityController.text = widget.requirement?.complexity ?? '';
     reqEstimatedTimeController.text = widget.requirement?.estimatedTime ?? '';
+    reqComplementInfoLinkController.text = widget.requirement?.complementInfoLink ?? '';
   }
 
   @override
@@ -127,6 +129,13 @@ class _RequirementsEditPageState extends State<RequirementsEditPage> {
                   label: "Tempo Estimado",
                   controller: reqEstimatedTimeController,
                 ),
+                const SizedBox(height: 25),
+                RequereasyTechFormField(
+                  label: "Link para informação complementar",
+                  controller: reqComplementInfoLinkController,
+                  validator:
+                  Validatorless.required("Link obrigatório!"),
+                ),
                 const SizedBox(height: 40),
                 Padding(
                   padding: const EdgeInsets.only(left: 80),
@@ -141,6 +150,7 @@ class _RequirementsEditPageState extends State<RequirementsEditPage> {
                         final String complexity = reqComplexityController.text;
                         final String estimatedTime =
                             reqEstimatedTimeController.text;
+                        final String link = reqComplementInfoLinkController.text;
 
                         var newDBRequirement = Requirement(
                           description,
@@ -149,6 +159,7 @@ class _RequirementsEditPageState extends State<RequirementsEditPage> {
                           complexity,
                           estimatedTime,
                           widget.requirement?.refProject,
+                          link,
                           widget.requirement?.location,
                           widget.requirement?.image1,
                           widget.requirement?.image2

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:projects_and_requirements/models/project.dart';
 import 'package:projects_and_requirements/models/requirements.dart';
-import 'package:projects_and_requirements/models/image.dart';
+import 'package:projects_and_requirements/models/user.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -34,6 +34,16 @@ class DatabaseHelper {
   static String reqLocationColumn = 'location';
   static String reqImage1Column = 'image1';
   static String reqImage2Column = 'image2';
+  static String reqLinkColumn = "complementInfoLink";
+
+  // Users table
+  static String usersTable = "users";
+
+  // Columns from users table
+
+  static String userIdColumn = 'id';
+  static String userLoginColumn = 'login';
+  static String userPasswordColumn = 'password';
 
   DatabaseHelper._createInstance();
 
@@ -75,7 +85,13 @@ class DatabaseHelper {
         '$reqRefProjectColumn INTEGER,'
         '$reqLocationColumn TEXT,'
         '$reqImage1Column TEXT,'
-        '$reqImage2Column TEXT);');
+        '$reqImage2Column TEXT,'
+        '$reqLinkColumn TEXT);');
+
+    await db.execute('CREATE TABLE $usersTable('
+        '$userIdColumn INTEGER PRIMARY KEY AUTOINCREMENT,'
+        '$userLoginColumn TEXT,'
+        '$userPasswordColumn TEXT);');
   }
 
   Future<List<Map<String, dynamic>>> getProjectsMapList() async {
@@ -87,16 +103,6 @@ class DatabaseHelper {
   Future<int> insertProject(Project p) async {
     Database db = await database;
     var result = await db.insert(projectsTable, p.toMap());
-    return result;
-  }
-
-  Future<int> updateProject(Project p, int? id) async {
-    var db = await database;
-    var result = await db.rawUpdate(
-      "UPDATE $projectsTable SET $prjNameColumn = '${p.name}', "
-      "$prjStartDateColumn = '${p.startDate}', $prjEstimatedEndDateColumn = "
-      "'${p.estimatedEndDate}', $prjOwnerColumn = '${p.owner}' WHERE $prjIdColumn = '$id'",
-    );
     return result;
   }
 
@@ -131,6 +137,16 @@ class DatabaseHelper {
     return result;
   }
 
+  Future<int> updateProject(Project p, int? id) async {
+    var db = await database;
+    var result = await db.rawUpdate(
+      "UPDATE $projectsTable SET $prjNameColumn = '${p.name}', "
+          "$prjStartDateColumn = '${p.startDate}', $prjEstimatedEndDateColumn = "
+          "'${p.estimatedEndDate}', $prjOwnerColumn = '${p.owner}' WHERE $prjIdColumn = '$id'",
+    );
+    return result;
+  }
+
   Future<int> updateRequirement(Requirement r, int? id) async {
     var db = await database;
     var result = await db.rawUpdate(
@@ -138,7 +154,8 @@ class DatabaseHelper {
       "$reqRegisterDateColumn = '${r.registerDate}', $reqImportanceColumn = "
       "'${r.importance}', $reqComplexityColumn = '${r.complexity}', $reqEstimatedTimeColumn = "
       "'${r.estimatedTime}', $reqLocationColumn = '${r.location}', $reqImage1Column = "
-      "'${r.image1}', $reqImage2Column = '${r.image2}' WHERE $reqIdColumn = '$id'",
+      "'${r.image1}', $reqImage2Column = '${r.image2}', $reqLinkColumn = '${r.complementInfoLink}' "
+      "WHERE $reqIdColumn = '$id'",
     );
     return result;
   }
@@ -158,5 +175,27 @@ class DatabaseHelper {
       requirements.add(Requirement.fromMapObject(requirementsMapList[i]));
     }
     return requirements;
+  }
+
+  Future<List<Map<String, dynamic>>> getUsersMapList() async {
+    Database db = await database;
+    var result = await db.rawQuery('SELECT * from $usersTable');
+    return result;
+  }
+
+  Future<int> insertUser(User u) async {
+    Database db = await database;
+    var result = await db.insert(usersTable, u.toMap());
+    return result;
+  }
+
+  Future<List<User>> getUsers() async {
+    var usersMapList = await getUsersMapList();
+    int count = usersMapList.length;
+    List<User> users = <User>[];
+    for (int i = 0; i < count; i++) {
+      users.add(User.fromMapObject(usersMapList[i]));
+    }
+    return users;
   }
 }

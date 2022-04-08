@@ -8,6 +8,7 @@ import 'package:projects_and_requirements/pages/project_edit_page.dart';
 import 'package:projects_and_requirements/pages/projects_list_page.dart';
 import 'package:projects_and_requirements/pages/requirements_edit_page.dart';
 import 'package:projects_and_requirements/pages/requirements_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProjectDetailsPage extends StatefulWidget {
   static route(Project project, int index) => MaterialPageRoute(
@@ -362,6 +363,48 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                                               ),
                                             ],
                                           ),
+                                          const SizedBox(height: 5),
+                                          Row(
+                                            children: const [
+                                              Text(
+                                                'Link para Documentação Complementar: ',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  '${req.complementInfoLink}',
+                                                  style: const TextStyle(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    fontSize: 20,
+                                                  ),
+                                                  maxLines: 5,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 120.0),
+                                            child: Row(
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () => _accessLink(
+                                                      req.complementInfoLink!),
+                                                  child: const Text(
+                                                      'Acessar Link'),
+                                                )
+                                              ],
+                                            ),
+                                          ),
                                           const SizedBox(height: 20),
                                           Center(
                                             child: Image.file(
@@ -575,5 +618,27 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
 
       requirementsSize = requirementsSize - 1;
     });
+  }
+
+  void _accessLink(String url) async {
+    if (await canLaunch('https:$url')) {
+      await launch(
+        'https:$url',
+        enableJavaScript: true,
+        forceSafariVC: true,
+        forceWebView: true,
+      );
+    } else {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erro ao acessar o link $url',
+            style: const TextStyle(color: Colors.red),
+          ),
+          backgroundColor: Colors.grey,
+        ),
+      );
+    }
   }
 }

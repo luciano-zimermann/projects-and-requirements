@@ -36,6 +36,7 @@ class _RequirementsPageState extends State<RequirementsPage> {
   TextEditingController reqImportanceController = TextEditingController();
   TextEditingController reqComplexityController = TextEditingController();
   TextEditingController reqEstimatedTimeController = TextEditingController();
+  TextEditingController reqComplementInfoLinkController = TextEditingController();
 
   static DatabaseHelper? db;
 
@@ -189,6 +190,13 @@ class _RequirementsPageState extends State<RequirementsPage> {
                       Validatorless.required("Tempo estimado obrigatório!"),
                 ),
                 const SizedBox(height: 25),
+                RequereasyTechFormField(
+                  label: "Link para informação complementar",
+                  controller: reqComplementInfoLinkController,
+                  validator:
+                  Validatorless.required("Link obrigatório!"),
+                ),
+                const SizedBox(height: 25),
                 Center(
                   child: isLoadingLocation
                       ? const CircularProgressIndicator()
@@ -274,6 +282,7 @@ class _RequirementsPageState extends State<RequirementsPage> {
                         final String estimatedTime =
                             reqEstimatedTimeController.text;
                         final int refProject = widget.projectId!;
+                        final String link = reqComplementInfoLinkController.text;
                         final String location =
                             _currentAddress ?? 'Não Informado';
 
@@ -284,6 +293,7 @@ class _RequirementsPageState extends State<RequirementsPage> {
                           complexity,
                           estimatedTime,
                           refProject,
+                          link,
                           location,
                           image1!.path.toString(),
                           image2!.path.toString(),

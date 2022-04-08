@@ -13,80 +13,82 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 100, left: 30),
-        child: Column(
-          children: [
-            const Text(
-              'Bem-vindo ao Requereasy Tech!',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w700,
-                color: Colors.green,
-                letterSpacing: 2,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 100, left: 30),
+          child: Column(
+            children: [
+              const Text(
+                'Bem-vindo ao Requereasy Tech!',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.green,
+                  letterSpacing: 2,
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'Soluções simples para o gerenciamento de Projetos e seus Requisitos, bem na sua mão!',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 20,
+              const SizedBox(height: 30),
+              const Text(
+                'Soluções simples para o gerenciamento de Projetos e seus Requisitos, bem na sua mão!',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 20,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 50,
-                right: 30,
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProjectPage(),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  right: 30,
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProjectPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Cadastrar Projeto',
+                    style: TextStyle(
+                      fontSize: 35,
+                      fontWeight: FontWeight.w900,
                     ),
-                  );
-                },
-                child: const Text(
-                  'Cadastrar Projeto',
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.w900,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(450, 150),
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(450, 150),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  right: 30,
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 50,
-                right: 30,
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProjectsListPage(),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProjectsListPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Listar Projetos',
+                    style: TextStyle(
+                      fontSize: 35,
+                      fontWeight: FontWeight.w900,
                     ),
-                  );
-                },
-                child: const Text(
-                  'Listar Projetos',
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.w900,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(450, 150),
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(450, 150),
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(
